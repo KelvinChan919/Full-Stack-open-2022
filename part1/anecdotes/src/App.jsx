@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+
+
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -13,11 +15,13 @@ const App = () => {
   ]
   const vote_array = new Uint8Array(anecdotes.length)
   const [vote, setvote] = useState(vote_array)
+  const [show_vote, set_show_vote] = useState(0)
   const [selected, setSelected] = useState(0)
   const vote_func = () => {
+    vote[selected] += 1
     const new_vote = vote
-    new_vote[selected] += 1
     setvote(new_vote)
+    set_show_vote(vote[selected])
   }
   function getRandomInt(max) {
     return Math.floor(Math.random() * max);
