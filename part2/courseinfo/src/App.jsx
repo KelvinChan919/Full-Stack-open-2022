@@ -26,15 +26,23 @@ const App = () => {
       }
     ]
   }
+  const sum = (array) => {
+    let total = 0;
+    array.forEach(element => {
+      total += element;
+    });
+    return total;
+  };
 
   return(
     <div>
       <h1>{course.name}</h1>
-      <ul>
+      <ul>  
         {course.parts.map(course =>
           <Course key={course.id} name={course.name} exercises={course.exercises}/>
         )}
       </ul>
+      <p>total of {sum(course.parts.map(each => each.exercises))} exercises</p>
     </div>
   )
 }
