@@ -26,13 +26,7 @@ const App = () => {
       }
     ]
   }
-  const sum = (array) => {
-    let total = 0;
-    array.forEach(element => {
-      total += element;
-    });
-    return total;
-  };
+  const total = (course.parts.map(element => element.exercises)).reduce((accumulator, currentvalue) => accumulator + currentvalue)
 
   return(
     <div>
@@ -42,7 +36,7 @@ const App = () => {
           <Course key={course.id} name={course.name} exercises={course.exercises}/>
         )}
       </ul>
-      <p>total of {sum(course.parts.map(each => each.exercises))} exercises</p>
+      <p>total of {total} exercises</p>
     </div>
   )
 }
