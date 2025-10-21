@@ -1,13 +1,7 @@
 import { useState } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
-
-const Display_name = (props) =>{
-  return(
-    <li>{props.name} {props.number}</li>
-  )
-}
-
+import Display_name from './components/Display'
 
 const App = () => {
   const [persons, setPersons] = useState([
