@@ -26,7 +26,7 @@ const App = () => {
     }
   }
   const filter_func = (array, name) => {
-    if (name !== ""){
+    if (name !== " "){
       const regex = new RegExp(String(name),'i')
       const new_array = array.filter(each => regex.test(each.name))
       return new_array
