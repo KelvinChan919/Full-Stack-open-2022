@@ -2,7 +2,7 @@ import { useState,useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Display_name from './components/Display'
-import axios from 'axios'
+import methods from './services/methods'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -11,12 +11,10 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
   const [shown_persons, setShown_Persons] = useState(persons) 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response=>{
-          setPersons(response.data)
-          setShown_Persons(response.data)
-      })
+    methods.getall().then(response => {
+      setPersons(response.data)
+      setShown_Persons(response.data)
+    })  
   },[])
   const check_duplicate = (array, name) => {
     if (array.includes(name)){
@@ -40,19 +38,19 @@ const App = () => {
     event.preventDefault()
     const newObject ={
       name : newName,
-      number : newNumber
+      number : newNumber,
+      id : String(persons.length + 1)
     }
     const duplicate_name_checker = check_duplicate(persons.map(element => element.name),newName)
-    const filtered_array = filter_func(persons.map(element => element),newFilter)
-    if (duplicate_name_checker === false){
-      const updatedPersons = persons.concat(newObject)
-      setPersons(updatedPersons)
-      setShown_Persons(filter_func(updatedPersons, newFilter))
-    }
-    else{
+    if (duplicate_name_checker === true){
       alert(newName + ' is already added to phonebook')
+      return
     }
-    
+    methods.create(newObject).then(response => {
+        const updatedPersons = [...persons, response.data]
+        setPersons(updatedPersons)
+        setShown_Persons(filter_func(updatedPersons, newFilter))
+      })
   }
   const HandleNameChange = (event) => {
     event.preventDefault()
