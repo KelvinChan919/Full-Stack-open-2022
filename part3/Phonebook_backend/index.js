@@ -68,6 +68,13 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request,response) => {
     const id = Math.floor(Math.random() * 1000000000)
     const new_entry = request.body
+    const name_match = (persons.filter(element => element.name === new_entry.name).length > 0)
+    if (new_entry.number === '' || new_entry.name === ''){
+        return response.status(400).end('neither name or number cannot be empty')
+    }
+    else if(name_match){
+        return response.status(400).end('The name already exists in the phonebook')
+    }
     new_entry.id = id
     response.json(new_entry)
     persons = persons.concat(new_entry)
