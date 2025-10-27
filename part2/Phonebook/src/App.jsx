@@ -3,6 +3,7 @@ import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Display_name from './components/Display';
 import methods from './services/methods';
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([]); // 完整數據
@@ -10,6 +11,9 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [newFilter, setNewFilter] = useState('');
+  const [newNotification, setNewNotification] = useState(null)
+  const [latelyAddedName, setlatelyAddedName] = useState('')
+  const [latelyAddedNumber, setlatelyAddedNumber] = useState('')
 
   useEffect(() => {
     methods.getall().then(response => {
@@ -48,12 +52,17 @@ const App = () => {
     const duplicate_name_checker = check_duplicate(persons, newName);
     if (duplicate_name_checker && window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
       const target_id = persons.filter(element => element.name === newName)[0].id
-      await methods.update(target_id, {...newObject, id : target_id})
+      await methods.update(target_id, {...newObject, id : target_id}).then(response => {
+        setlatelyAddedName(response.data.name)
+        setlatelyAddedNumber(response.data.number)
+      })
       methods.getall().then(response => {
         const updatedPersons = response.data
         setPersons(updatedPersons);
         setShown_Persons(filter_func(updatedPersons, newFilter));
       })
+      setNewNotification('numberChange')
+
       return;
     }
     else if(duplicate_name_checker && !window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
@@ -63,6 +72,9 @@ const App = () => {
         const updatedPersons = [...persons, response.data];
         setPersons(updatedPersons);
         setShown_Persons(filter_func(updatedPersons, newFilter));
+        setNewNotification('personAdd')
+        setlatelyAddedName(response.data.name)
+        setlatelyAddedNumber(response.data.number)
       }).catch(error => {
         console.error('創建失敗:', error);
         alert('無法添加聯繫人');
@@ -129,6 +141,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification name={latelyAddedName} number={latelyAddedNumber} status={newNotification}/>
       <Filter newFilter={newFilter} HandleFilterChange={HandleFilterChange} />
       <h2>Add a new</h2>
       <PersonForm add_func={add_func} newName={newName} HandleNameChange={HandleNameChange} newNumber={newNumber} HandleNumberChange={HandleNumberChange} />
