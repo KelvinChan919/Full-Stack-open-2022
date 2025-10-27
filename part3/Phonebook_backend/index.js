@@ -65,6 +65,13 @@ app.delete('/api/persons/:id', (request, response) => {
     }
 })
 
+app.post('/api/persons', (request,response) => {
+    const id = Math.floor(Math.random() * 1000000000)
+    const new_entry = request.body
+    new_entry.id = id
+    response.json(new_entry)
+    persons = persons.concat(new_entry)
+})
 
 
 const PORT = 3001
