@@ -23,11 +23,21 @@ persons = [
       "id": "4",
       "name": "Mary Poppendieck", 
       "number": "39-23-6423122"
-    }
+    },
+    { 
+        "id": "5",
+        "name": "Mary Poppendieck", 
+        "number": "39-23-6423122"
+      }
 ]
 
 app.get('/api/persons', (request,response) => {
     response.json(persons)
+})
+
+app.get('/info', (request, response) => {
+    response.send(`<h1>Phonebook has info for ${persons.length} persons</h1> <h1>${new Date()}</h1>`)
+    
 })
 
 
