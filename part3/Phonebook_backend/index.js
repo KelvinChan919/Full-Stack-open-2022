@@ -40,6 +40,19 @@ app.get('/info', (request, response) => {
     
 })
 
+app.get('/api/persons/:id', (request, response) => {
+    const id = request.params.id
+    const feedback = persons.filter(element => element.id === id)
+
+    if (feedback){
+        response.json(feedback)
+    }
+    else{
+        response.status(404).end()
+    }
+
+})
+
 
 
 const PORT = 3001
