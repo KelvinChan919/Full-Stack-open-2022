@@ -53,6 +53,18 @@ app.get('/api/persons/:id', (request, response) => {
 
 })
 
+app.delete('/api/persons/:id', (request, response) => {
+    const id = request.params.id
+    const if_exist = (persons.filter(element => element.id === id).length > 0)
+    if(if_exist){
+        persons = persons.filter(element => element.id !== id)
+        response.status(200).end(`the entry ${id} has been successfully deleted`)
+    }
+    else{
+        response.status(404).end('the entry to be deleted does not exist')
+    }
+})
+
 
 
 const PORT = 3001
