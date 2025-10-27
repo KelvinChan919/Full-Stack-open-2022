@@ -22,7 +22,7 @@ const App = () => {
   }, []);
 
   const check_duplicate = (array, name) => {
-    return array.some(element => element.name === name); // 改為 some 精確比較
+    return array.some(element => element.name === name)
   };
 
   const filter_func = (array, filter) => {
@@ -34,26 +34,40 @@ const App = () => {
     }
   };
 
-  const add_func = (event) => {
+  const add_func = async (event) => {
     event.preventDefault();
+    if (newName === '' || newNumber === ''){
+      alert('neither name or number cannot be empty')
+      return
+    }
     const newObject = {
-      name: newName,
-      number: newNumber,
       id: String(persons.length + 1),
+      name: newName,
+      number: newNumber
     };
     const duplicate_name_checker = check_duplicate(persons, newName);
-    if (duplicate_name_checker) {
-      alert(`${newName} is already added to phonebook`);
+    if (duplicate_name_checker && window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
+      const target_id = persons.filter(element => element.name === newName)[0].id
+      await methods.update(target_id, {...newObject, id : target_id})
+      methods.getall().then(response => {
+        const updatedPersons = response.data
+        setPersons(updatedPersons);
+        setShown_Persons(filter_func(updatedPersons, newFilter));
+      })
       return;
     }
-    methods.create(newObject).then(response => {
-      const updatedPersons = [...persons, response.data];
-      setPersons(updatedPersons);
-      setShown_Persons(filter_func(updatedPersons, newFilter));
-    }).catch(error => {
-      console.error('創建失敗:', error);
-      alert('無法添加聯繫人');
-    });
+    else if(duplicate_name_checker && !window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
+      return;
+    }else{
+      methods.create(newObject).then(response => {
+        const updatedPersons = [...persons, response.data];
+        setPersons(updatedPersons);
+        setShown_Persons(filter_func(updatedPersons, newFilter));
+      }).catch(error => {
+        console.error('創建失敗:', error);
+        alert('無法添加聯繫人');
+      });
+    }
   };
 
   const HandleNameChange = (event) => {
