@@ -1,0 +1,11 @@
+GET http://localhost:3001/notes
+
+
+####
+POST http://localhost:3001/notes
+Content-Type: application/json
+
+{
+    "content" : "post request is good",
+    "important" : true
+}
