@@ -1,45 +1,17 @@
+require('dotenv').config()
 const express = require('express')
-const morgan = require('morgan')
 const app = express()
-morgan.token('content', function getContent (req) {
-    const content = { 'name': req.body.name, 'number' : req.body.number}
-    return JSON.stringify(content)
-  })
+const PhoneBook = require('./phonebook')
 
 
 app.use(express.json())
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
 
-persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    },
-    { 
-        "id": "5",
-        "name": "Mary Poppendieck", 
-        "number": "39-23-6423122"
-      }
-]
+
 
 app.get('/api/persons', (request,response) => {
-    response.json(persons)
+    PhoneBook.find({}).then((entry) => {
+        response.json(entry)
+    })
 })
 
 app.get('/info', (request, response) => {
@@ -49,14 +21,9 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    const feedback = persons.filter(element => element.id === id)
-
-    if (feedback){
-        response.json(feedback)
-    }
-    else{
-        response.status(404).end()
-    }
+    PhoneBook.filterById(id).then((entry) => {
+        response.json(entry)
+    })
 
 })
 
@@ -72,22 +39,30 @@ app.delete('/api/persons/:id', (request, response) => {
     }
 })
 
-app.post('/api/persons', (request,response) => {
-    const id = Math.floor(Math.random() * 1000000000)
-    const new_entry = request.body
-    const name_match = (persons.filter(element => element.name === new_entry.name).length > 0)
+app.post('/api/persons', async (request,response) => {
+    const body = request.body
+    if(!body){
+        return response.status(400).json({ error:'content is missing'})
+    }
+    const new_entry = new PhoneBook({
+        name:body.name,
+        number:body.number,
+    })
+
+    const current_array = await PhoneBook.find({})
+    const name_match = (current_array.filter(element => element.name === new_entry.name).length > 0)
     if (new_entry.number === '' || new_entry.name === ''){
         return response.status(400).end('neither name or number cannot be empty')
     }
     else if(name_match){
         return response.status(400).end('The name already exists in the phonebook')
     }
-    new_entry.id = id
-    response.json(new_entry)
-    persons = persons.concat(new_entry)
+    new_entry.save().then((saved) => {
+        response.json(saved)
+    })
+    
 })
 
-
-const PORT = 3001
+const PORT = process.env.PORT
 app.listen(PORT)
 console.log(`server is running on port ${PORT}`)
