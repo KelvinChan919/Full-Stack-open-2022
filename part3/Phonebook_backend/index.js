@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const PhoneBook = require('./phonebook')
+const phonebook = require('./phonebook')
 app.use(express.json())
 
 const unknownEndpoint = (request, response) => {
@@ -48,6 +49,25 @@ app.delete('/api/persons/:id', (request, response, next) => {
             response.status(404).json({error:"the entry to be deleted does not exist anymore"})
         }
     }).catch((err) =>{
+        next(err)
+    })
+})
+
+app.put('/api/persons/:id', (request,response,next) => {
+    const {name,number} = request.body
+    const id = request.params.id
+    PhoneBook.findById(id).then(entry => {
+        if(!entry){
+            return response.status(404).end()
+        }else{
+            console.log(entry)
+            entry.name = name
+            entry.number = number
+            entry.save().then((saved) => {
+                response.json(saved)
+            })
+        }
+    }).catch(err => {
         next(err)
     })
 })
