@@ -4,6 +4,16 @@ const app = express()
 const PhoneBook = require('./phonebook')
 app.use(express.json())
 
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+  }
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+  
+    if (error.name === 'CastError') {
+      return response.status(400).send({ error: 'malformatted id' })
+    }
+}
 app.get('/api/persons', (request,response) => {
     PhoneBook.find({}).then((entry) => {
         response.json(entry)
@@ -15,7 +25,7 @@ app.get('/info', (request, response) => {
     
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
     PhoneBook.findById(id).then((entry) => {
         if(entry){
@@ -26,8 +36,7 @@ app.get('/api/persons/:id', (request, response) => {
         }
     })
     .catch((err) =>{
-        console.log(err)
-        response.status(400).send({ error: 'malformatted id' })
+        next(err)
     })
 })
 
@@ -38,7 +47,8 @@ app.delete('/api/persons/:id', (request, response, next) => {
         }else{
             response.status(404).json({error:"the entry to be deleted does not exist anymore"})
         }
-
+    }).catch((err) =>{
+        next(err)
     })
 })
 
@@ -66,6 +76,9 @@ app.post('/api/persons', async (request,response) => {
     
 })
 
+
+app.use(unknownEndpoint)
+app.use(errorHandler)
 const PORT = process.env.PORT
 app.listen(PORT)
 console.log(`server is running on port ${PORT}`)
