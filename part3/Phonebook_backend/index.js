@@ -21,7 +21,7 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    PhoneBook.filterById(id).then((entry) => {
+    PhoneBook.findById(id).then((entry) => {
         response.json(entry)
     })
 
