@@ -2,11 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const PhoneBook = require('./phonebook')
-
-
 app.use(express.json())
-
-
 
 app.get('/api/persons', (request,response) => {
     PhoneBook.find({}).then((entry) => {
@@ -22,21 +18,28 @@ app.get('/info', (request, response) => {
 app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id
     PhoneBook.findById(id).then((entry) => {
-        response.json(entry)
+        if(entry){
+            response.json(entry)
+        }else{
+            console.log('not found')
+            response.status(404).end()
+        }
     })
-
+    .catch((err) =>{
+        console.log(err)
+        response.status(400).send({ error: 'malformatted id' })
+    })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const if_exist = (persons.filter(element => element.id === id).length > 0)
-    if(if_exist){
-        persons = persons.filter(element => element.id !== id)
-        response.status(200).end(`the entry ${id} has been successfully deleted`)
-    }
-    else{
-        response.status(404).end('the entry to be deleted does not exist')
-    }
+app.delete('/api/persons/:id', (request, response, next) => {
+    PhoneBook.findByIdAndDelete(request.params.id).then(result => {
+        if(result){
+            response.status(204).end()
+        }else{
+            response.status(404).json({error:"the entry to be deleted does not exist anymore"})
+        }
+
+    })
 })
 
 app.post('/api/persons', async (request,response) => {
