@@ -13,6 +13,8 @@ const errorHandler = (error, request, response, next) => {
   
     if (error.name === 'CastError') {
       return response.status(400).send({ error: 'malformatted id' })
+    }else if(error.name === 'ValidationError'){
+        return response.status(400).send({ error: 'the name has to be at least 3 characters long'})
     }
 }
 app.get('/api/persons', (request,response) => {
@@ -73,7 +75,7 @@ app.put('/api/persons/:id', (request,response,next) => {
     })
 })
 
-app.post('/api/persons', async (request,response) => {
+app.post('/api/persons', async (request,response, next) => {
     const body = request.body
     if(!body){
         return response.status(400).json({ error:'content is missing'})
@@ -93,6 +95,8 @@ app.post('/api/persons', async (request,response) => {
     }
     new_entry.save().then((saved) => {
         response.json(saved)
+    }).catch(err => {
+        next(err)
     })
     
 })
