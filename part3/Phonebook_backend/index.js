@@ -21,8 +21,9 @@ app.get('/api/persons', (request,response) => {
     })
 })
 
-app.get('/info', (request, response) => {
-    response.send(`<h1>Phonebook has info for ${persons.length} persons</h1> <h1>${new Date()}</h1>`)
+app.get('/api/persons/info', async (request, response) => {
+    const PhoneBook_array = await(PhoneBook.find({}))
+    response.send(`<h1>Phonebook has info for ${PhoneBook_array.length} persons</h1> <h1>${new Date()}</h1>`)
     
 })
 
