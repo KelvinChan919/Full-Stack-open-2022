@@ -12,8 +12,20 @@ const favoriteBlog = (blog) => {
     return blog[favorite]
 }
 
+const mostBlogs = (blog) => {
+    const arr = []
+    const author_list = [...new Set(blog.map(entry => entry.author))]
+    for(i=0; i < author_list.length; i++){
+        const total_blogs = blog.filter(entry => entry.author === author_list[i]).length
+        const entry = { author : author_list[i], blogs : total_blogs }
+        arr.push(entry)
+    }
+    return arr[arr.map( entry => entry.blogs).indexOf(Math.max(...arr.map(entry => entry.blogs)))]
+}
+
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostBlogs
 }
